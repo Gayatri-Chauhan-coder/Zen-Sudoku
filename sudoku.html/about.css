@@ -1,0 +1,219 @@
+
+/* =====================================
+   ZEN SUDOKU — ABOUT PAGE
+   Editorial Ivory & Sage Theme
+   ===================================== */
+
+:root {
+    --cream: #F7F5EF;
+    --cream-light: #FCFBF7;
+    --sage: #B2C09F;
+    --sage-dark: #7D8D6C;
+    --forest: #59694B;
+    --deep-green: #35412F;
+    --muted: #858B7B;
+    --line: #DCE3D4;
+}
+
+/* Page foundation */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+
+    background:
+        radial-gradient(ellipse at 8% 12%,
+            rgba(178, 192, 159, 0.22), transparent 35%),
+        radial-gradient(ellipse at 92% 88%,
+            rgba(221, 211, 185, 0.28), transparent 35%),
+        var(--cream);
+
+    color: var(--deep-green);
+    font-family: Georgia, serif;
+}
+
+
+/* Main section */
+
+.page-main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+
+/* Content card */
+
+.page-card {
+    width: min(100%, 760px);
+    padding: 28px 48px;
+    background: rgba(252, 251, 247, 0.88);
+    border: 1px solid rgba(220, 227, 212, 0.9);
+    border-radius: 5px;
+    box-shadow: 0 18px 55px rgba(53, 65, 47, 0.07);
+}
+
+.page-eyebrow {
+    color: var(--sage-dark);
+    font-size: 10px;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+}
+
+.page-card h1 {
+    font-size: clamp(30px, 4vw, 40px);
+    font-weight: normal;
+    margin: 0 0 8px;
+}
+
+.page-card p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #747B6B;
+    margin: 10px 0;
+}
+
+.page-tagline {
+    color: var(--forest) !important;
+    font-size: 14px !important;
+    font-style: italic;
+}
+
+.closing-line {
+    margin-top: 16px !important;
+}
+
+.page-actions {
+    margin-top: 18px;
+    gap: 12px;
+}
+
+.button {
+    display: inline-block;
+    padding: 13px 22px;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    transition: 0.25s ease;
+}
+
+.button-primary {
+    background: var(--forest);
+    color: white;
+}
+
+.button-primary:hover {
+    background: var(--deep-green);
+    transform: translateY(-2px);
+}
+
+.button-secondary {
+    border: 1px solid var(--sage);
+    color: var(--forest);
+}
+
+.button-secondary:hover {
+    background: var(--sage);
+    color: white;
+}
+
+/* Footer */
+
+.page-footer {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+
+    body {
+        height: 100dvh;
+    }
+
+    .navbar {
+        padding: 18px 5%;
+    }
+
+    .page-main {
+        height: calc(100dvh - 73px);
+        padding: 15px;
+    }
+
+    .page-card {
+        padding: 28px 22px;
+    }
+
+    .page-card h1 {
+        font-size: 30px;
+    }
+
+    .page-card h2 {
+        margin-top: 18px;
+    }
+
+    .page-card p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .page-actions {
+        gap: 10px;
+        margin-top: 20px;
+    }
+}
+
+.closing-line {
+    margin-top: 14px;
+    margin-bottom: 14px;
+}
+
+@media (max-width: 600px) {
+    .page-main {
+        padding: 12px;
+    }
+
+    .page-card {
+        padding: 22px 20px;
+    }
+
+    .page-card p {
+        font-size: 12px;
+        line-height: 1.45;
+    }
+}
+
+/* Page entrance animation */
+
+.page-card {
+    animation: pageAppear 0.9s ease-out both;
+}
+
+.page-footer {
+    animation: pageAppear 0.9s ease-out both;
+    animation-delay: 0.25s;
+}
+
+@keyframes pageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

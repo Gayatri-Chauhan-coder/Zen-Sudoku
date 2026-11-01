@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Zen Sudoku</title>
+
+    <link rel="stylesheet" href="sage.css">
+    <link rel="stylesheet" href="auth.css">
+</head>
+
+<body>
+
+    <!-- TOP NAVIGATION -->
+    <header class="navbar">
+
+        <a href="./home.html" class="brand">
+            <span class="brand-icon">Z</span>
+            <span><strong>Zen Sudoku</strong></span>
+        </a>
+
+        <nav class="navigation">
+            <a href="./about.html" class="nav-button">About</a>
+            <a href="./contact.html" class="nav-button">Contact us</a>
+            <a href="./feedback.html" class="nav-button">Feedback</a>
+        </nav>
+
+        <div class="navbar-actions">
+
+            <a href="./profile.html" class="profile-icon" title="My Profile">
+                👤
+            </a>
+
+            <a href="./exit.html" class="exit-button">
+                Exit
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- HOMEPAGE -->
+    <main class="landing-page">
+
+        <section class="hero">
+
+            <p class="eyebrow">A QUIET SPACE FOR YOUR MIND</p>
+
+            <h1>ZEN SUDOKU</h1>
+
+            <p class="tagline">
+                Numbers in balance, Mind in harmony
+            </p>
+
+            <p class="description">
+                Take a breath. Find your focus.
+                Let every number fall into place.
+            </p>
+
+            <div class="main-buttons">
+
+                <button type="button"
+                        class="button primary-button"
+                        id="start-new-game">
+                    Start a New Game <span>→</span>
+                </button>
+
+                <a href="./continue.html" class="button secondary-button">
+                    Continue Playing
+                </a>
+
+                <a href="./how-to-play.html" class="learn-link">
+                    New to Sudoku? Learn how to play
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="footer">
+
+            <span>Made for moments of clarity.</span>
+
+            <a href="./developer.html">
+                Meet the developer ↗
+            </a>
+
+        </footer>
+
+    </main>
+
+
+    <!-- AUTHENTICATION MODAL -->
+
+    <div class="auth-overlay"
+         id="auth-overlay"
+         aria-hidden="true">
+
+        <section class="auth-modal"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="auth-title">
+
+            <div class="auth-heading">
+
+                <span class="auth-leaf">🌿</span>
+
+                <p class="auth-eyebrow">YOUR PERSONAL SPACE</p>
+
+                <h2 id="auth-title">Welcome to Zen Sudoku</h2>
+
+                <p class="auth-subtitle">
+                    A little focus goes a long way.
+                </p>
+
+            </div>
+
+
+            <!-- AUTHENTICATION TABS -->
+
+            <div class="auth-tabs">
+
+                <button type="button"
+                        class="auth-tab active"
+                        id="signin-tab">
+                    Sign In
+                </button>
+
+                <button type="button"
+                        class="auth-tab"
+                        id="signup-tab">
+                    Create Account
+                </button>
+
+            </div>
+
+
+            <!-- SIGN IN PANEL -->
+
+            <div class="auth-panel" id="signin-panel">
+
+                <form id="signin-form">
+
+                    <label for="signin-email">Email address</label>
+
+                    <input
+                        id="signin-email"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                    <label for="signin-password">Password</label>
+
+                    <input
+                        id="signin-password"
+                        name="password"
+                        type="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button class="auth-submit" type="submit">
+                        Sign In
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- CREATE ACCOUNT PANEL -->
+
+            <div class="auth-panel" id="signup-panel" hidden>
+
+                <form id="signup-form">
+
+                    <label for="signup-username">Username</label>
+
+                    <input
+                        id="signup-username"
+                        name="username"
+                        type="text"
+                        placeholder="Choose a username"
+                        minlength="3"
+                        maxlength="24"
+                        required
+                    >
+
+                    <label for="signup-email">Email address</label>
+
+                    <input
+                        id="signup-email"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                    <label for="signup-password">Create password</label>
+
+                    <input
+                        id="signup-password"
+                        name="password"
+                        type="password"
+                        placeholder="At least 8 characters"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button class="auth-submit" type="submit">
+                        Create Account
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- DIVIDER -->
+
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
+
+
+            <!-- GUEST ACCESS -->
+
+            <button type="button"
+                    class="guest-button"
+                    id="continue-guest">
+
+                Continue as Guest
+
+            </button>
+
+
+            <!-- STATUS MESSAGE -->
+
+            <p class="auth-message"
+               id="auth-message"
+               role="status"
+               aria-live="polite">
+            </p>
+
+
+            <p class="auth-footnote">
+                Sign in, create an account, or continue as a guest
+                to enter your personal Sudoku space.
+            </p>
+
+        </section>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        // DOM ELEMENTS
+
+        const authOverlay = document.getElementById("auth-overlay");
+
+        const startGameButton = document.getElementById("start-new-game");
+
+        const signInTab = document.getElementById("signin-tab");
+        const signUpTab = document.getElementById("signup-tab");
+
+        const signInPanel = document.getElementById("signin-panel");
+        const signUpPanel = document.getElementById("signup-panel");
+
+        const signInForm = document.getElementById("signin-form");
+        const signUpForm = document.getElementById("signup-form");
+
+        const guestButton = document.getElementById("continue-guest");
+
+        const authMessage = document.getElementById("auth-message");
+
+
+        // START NEW GAME: OPEN AUTHENTICATION
+
+        startGameButton.addEventListener("click", function () {
+
+            authOverlay.classList.add("show");
+            authOverlay.setAttribute("aria-hidden", "false");
+
+        });
+
+
+        // SWITCH TO SIGN IN
+
+        signInTab.addEventListener("click", function () {
+
+            signInTab.classList.add("active");
+            signUpTab.classList.remove("active");
+
+            signInPanel.hidden = false;
+            signUpPanel.hidden = true;
+
+            authMessage.textContent = "";
+
+        });
+
+
+        // SWITCH TO CREATE ACCOUNT
+
+        signUpTab.addEventListener("click", function () {
+
+            signUpTab.classList.add("active");
+            signInTab.classList.remove("active");
+
+            signUpPanel.hidden = false;
+            signInPanel.hidden = true;
+
+            authMessage.textContent = "";
+
+        });
+
+
+        // SIGN IN FORM
+
+        signInForm.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            authMessage.textContent =
+                "Account verification will be available after backend integration.";
+
+        });
+
+
+        // CREATE ACCOUNT FORM
+
+        signUpForm.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            authMessage.textContent =
+                "Account registration will be available after backend integration.";
+
+        });
+
+
+        // CONTINUE AS GUEST
+
+        guestButton.addEventListener("click", function () {
+
+            sessionStorage.setItem("zenSudokuMode", "guest");
+
+            window.location.href = "/index1.html";
+
+        });
+
+    </script>
+
+</body>
+</html>
+
+
+

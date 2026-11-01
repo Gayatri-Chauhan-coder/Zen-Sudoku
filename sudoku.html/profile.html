@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Zen Sudoku</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+
+<body>
+
+    <div class="profile-page">
+
+        <!-- Navigation -->
+        <nav class="profile-navbar">
+            <a href="index.html" class="brand">ZEN SUDOKU</a>
+            <a href="home.html" class="back-link">← Back to Home</a>
+        </nav>
+
+        <!-- Profile Section -->
+        <main class="profile-container">
+
+            <div class="profile-card">
+
+                <p class="profile-eyebrow">YOUR PERSONAL SPACE</p>
+                <h1>My Profile</h1>
+                <p class="profile-subtitle">
+                    Every puzzle is a little progress.
+                </p>
+
+                <!-- Profile Picture -->
+                <div class="avatar-section">
+
+                    <div class="avatar-circle">
+                        <span class="default-avatar">🌿</span>
+                    </div>
+
+                    <label for="profile-upload" class="upload-btn">
+                        Change Profile Picture
+                    </label>
+
+                    <input
+                        type="file"
+                        id="profile-upload"
+                        accept="image/*"
+                        hidden
+                    >
+
+                </div>
+
+                <!-- Username -->
+                <div class="username-section">
+                    <label for="username">USERNAME</label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        value="Guest Player"
+                        maxlength="20"
+                        placeholder="Enter your username"
+                    >
+
+                    <p class="guest-label">Playing as a Guest</p>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-section">
+
+                    <div class="stat-card">
+                        <span class="stat-icon">🏆</span>
+                        <h2>Win Rate</h2>
+                        <p class="stat-value">0%</p>
+                        <span class="stat-description">
+                            Games won
+                        </span>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-icon">🔥</span>
+                        <h2>Day Streak</h2>
+                        <p class="stat-value">0</p>
+                        <span class="stat-description">
+                            Consecutive days
+                        </span>
+                    </div>
+
+                </div>
+
+                <!-- Footer Note -->
+                <p class="profile-note">
+                    Keep solving. Keep growing. Find your balance.
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

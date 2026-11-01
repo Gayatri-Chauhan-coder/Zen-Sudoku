@@ -1,0 +1,1953 @@
+ZEN SUDOKU — SOFT SAGE & CREAM
+   ===================================== */
+
+:root {
+    --cream: #F7F5EF;
+    --cream-dark: #F0EEE5;
+    --white: #FFFFFF;
+    --sage-pale: #EEF1E8;
+    --sage-light: #E2E8D9;
+    --sage: #B2C09F;
+    --sage-dark: #7D8D6C;
+    --forest: #59694B;
+    --deep-green: #35412F;
+    --muted: #858B7B;
+    --line: #DCE3D4;
+    --shadow: 0 10px 30px rgba(53, 65, 47, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 0;
+
+    background:
+        radial-gradient(
+            ellipse at 8% 12%,
+            rgba(178, 192, 159, 0.22),
+            transparent 32%
+        ),
+        radial-gradient(
+            ellipse at 95% 85%,
+            rgba(226, 232, 217, 0.8),
+            transparent 35%
+        ),
+        var(--cream);
+
+    color: var(--deep-green);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Remove old galaxy effects */
+
+#stars-container,
+#meteor-container,
+#meteors-flow {
+    display: none !important;
+}
+
+/* =====================================
+   PAGE TITLE
+   ===================================== */
+
+.game-info {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    padding: 28px 20px 12px;
+    text-align: center;
+}
+
+.game-info h1 {
+    margin: 0;
+
+    color: var(--forest);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(27px, 3.2vw, 42px);
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+
+/* Removed the decorative horizontal line */
+
+.game-info::after {
+    content: none;
+    display: none;
+}
+
+/* =====================================
+   MAIN GAME LAYOUT
+   Board left, controls right
+   ===================================== */
+
+main {
+    position: relative;
+    z-index: 1;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 540px)
+        minmax(235px, 245px);
+
+    grid-template-rows: auto auto;
+
+    grid-template-areas:
+        "board timer"
+        "board numpad";
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 20px 32px;
+
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 22px 28px 40px;
+}
+
+/* =====================================
+   SUDOKU BOARD
+   ===================================== */
+
+section.board {
+    grid-area: board;
+
+    display: grid;
+
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    grid-template-rows: repeat(9, minmax(0, 1fr));
+
+    width: 100%;
+    max-width: 540px;
+    aspect-ratio: 1 / 1;
+
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+/* Outer Sudoku board border */
+
+
+    border: 2px solid #59694B;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #FFFFFF;
+
+    box-shadow:
+        0 14px 35px rgba(53, 65, 47, 0.09),
+        0 2px 5px rgba(53, 65, 47, 0.04);
+
+}
+
+/* Individual cells */
+
+.board input {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    border-right: 1px solid #C8D2BE;
+    border-bottom: 1px solid #C8D2BE;
+    border-radius: 0;
+
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--deep-green);
+
+    font-family: inherit;
+    font-size: clamp(14px, 2vw, 23px);
+    font-weight: 500;
+    text-align: center;
+
+    outline: none;
+    appearance: none;
+    caret-color: var(--forest);
+
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease;
+}
+
+/* Selected cell */
+
+.board input:focus {
+    position: relative;
+    z-index: 1;
+
+    outline: 2px solid var(--sage-dark);
+    outline-offset: -2px;
+
+    background: var(--sage-light);
+    color: var(--deep-green);
+}
+
+.board input.selected {
+    position: relative;
+    z-index: 2;
+
+    background: var(--sage);
+    color: var(--deep-green);
+
+    outline: 2px solid var(--forest);
+    outline-offset: -2px;
+
+    font-weight: 700;
+}
+
+/* Same row, column and 3x3 box */
+
+.board input.related {
+    background: var(--sage-pale);
+}
+
+/* Duplicate numbers */
+
+.board input.error {
+    background: #F9E9E6;
+    color: #A44F45;
+}
+
+/* Selected cell with a duplicate */
+
+.board input.selected.error {
+    background: #E8B8B1;
+    color: #773A34;
+}
+
+/* Given or fixed cells */
+
+.board input.given,
+.board input.fixed {
+    background: #F5F6F0;
+    color: var(--forest);
+    font-weight: 700;
+}
+
+/* Thick boundaries between 3x3 boxes */
+
+.board input:nth-child(3n) {
+    border-right: 2px solid #7D8D6C;
+}
+
+.board input:nth-child(9n) {
+    border-right: 0;
+}
+
+.board input:nth-child(n + 19):nth-child(-n + 27),
+.board input:nth-child(n + 46):nth-child(-n + 54) {
+    border-bottom: 2px solid #7D8D6C;
+}
+
+.board input:nth-child(n + 73):nth-child(-n + 81) {
+    border-bottom: 0;
+}
+
+/* =====================================
+   TIMER CARD
+   ===================================== */
+
+section.timer {
+    grid-area: timer;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 10px;
+    padding: 20px 16px;
+
+    width: 100%;
+    margin: 0;
+
+    border: 1px solid rgba(125, 141, 108, 0.2);
+    border-radius: 16px;
+
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+
+    box-shadow: var(--shadow);
+
+    align-self: end;
+}
+
+.timer::before {
+    content: "YOUR FOCUS TIME";
+
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+#game-timer {
+    display: block;
+
+    margin: 0 0 5px;
+
+    color: var(--forest);
+
+    font-size: 35px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+}
+
+/* Timer buttons */
+
+.timer button {
+    width: 100%;
+    min-height: 40px;
+    padding: 10px 12px;
+
+    border: 1px solid var(--line);
+    border-radius: 9px;
+
+    background: var(--sage-pale);
+    color: var(--deep-green);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.timer #start-btn {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: var(--white);
+}
+
+.timer button:hover {
+    background: var(--sage-light);
+    transform: translateY(-1px);
+}
+
+.timer #start-btn:hover {
+    background: var(--deep-green);
+}
+
+/* =====================================
+   CREATIVE NUMBER PAD
+   BOTANICAL SAGE STYLE
+   ===================================== */
+
+section.numpad {
+    grid-area: numpad;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 15px;
+    padding: 20px 18px;
+
+    width: 100%;
+    margin: 0;
+
+    border: 1px solid rgba(125, 141, 108, 0.2);
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #F5F7F0,
+            #E5EBDD
+        );
+
+    box-shadow:
+        0 12px 28px rgba(53, 65, 47, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+    align-self: start;
+}
+
+/* Number pad heading */
+
+.numpad-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 3px;
+}
+
+.numpad-heading h4 {
+    margin: 0;
+
+    color: var(--forest);
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: 1.5px;
+}
+
+.numpad-heading span {
+    color: var(--sage-dark);
+    font-size: 17px;
+}
+
+/* Number grid */
+
+.number-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+}
+
+/* Individual number tiles */
+
+.number-grid button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-width: 0;
+
+    aspect-ratio: 1 / 0.92;
+
+    border: 1px solid rgba(125, 141, 108, 0.17);
+    border-radius: 13px;
+
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--forest);
+
+    font-family: inherit;
+    font-size: 21px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 3px 7px rgba(53, 65, 47, 0.045);
+
+    transition: all 0.2s ease;
+}
+
+.number-grid button:hover {
+    background: var(--sage);
+    color: var(--deep-green);
+
+    border-color: var(--sage-dark);
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 6px 12px rgba(53, 65, 47, 0.1);
+}
+
+.number-grid button:active {
+    transform: scale(0.94);
+}
+
+/* =====================================
+   UTILITY BUTTONS
+   DEL / CLEAR / UNDO
+   ===================================== */
+
+.utility-buttons {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+
+    padding-top: 4px;
+
+    border-top: 1px solid rgba(125, 141, 108, 0.2);
+}
+
+.utility-buttons button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    min-width: 0;
+    min-height: 52px;
+    padding: 7px 3px;
+
+    border: 1px solid rgba(125, 141, 108, 0.18);
+    border-radius: 11px;
+
+    background: rgba(255, 255, 255, 0.48);
+    color: var(--deep-green);
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 0.5px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+/* Hide decorative HTML icons from button text.
+   This keeps the existing JavaScript button
+   text checks compatible. */
+
+.utility-buttons button span {
+    display: none;
+}
+
+.utility-buttons button::before {
+    font-size: 17px;
+    line-height: 1;
+    color: var(--forest);
+}
+
+#delete-btn::before {
+    content: "⌫";
+}
+
+#clear-btn::before {
+    content: "✕";
+}
+
+#undo-btn::before {
+    content: "↶";
+}
+
+.utility-buttons button:hover {
+    background: var(--sage-light);
+    border-color: var(--sage-dark);
+    transform: translateY(-2px);
+}
+
+.utility-buttons button:active {
+    transform: scale(0.96);
+}
+
+/* Number pad footer */
+
+.numpad-footer {
+    margin: -3px 0 0;
+
+    color: var(--muted);
+
+    font-family: Georgia, serif;
+    font-size: 10px;
+    font-style: italic;
+    text-align: center;
+    letter-spacing: 0.2px;
+}
+
+/* =====================================
+   KEYBOARD FOCUS
+   ===================================== */
+
+button:focus-visible,
+.board input:focus-visible {
+    outline: 3px solid var(--sage-dark);
+    outline-offset: 2px;
+}
+
+/* =====================================
+   SHORT DESKTOP WINDOWS
+   ===================================== */
+
+@media (min-width: 801px) and (max-height: 760px) {
+
+    .game-info {
+        padding-top: 18px;
+        padding-bottom: 6px;
+    }
+
+    .game-info h1 {
+        font-size: clamp(26px, 2.8vw, 36px);
+    }
+
+    main {
+        grid-template-columns:
+            minmax(0, min(66vh, 500px))
+            minmax(235px, 245px);
+
+        gap: 14px 28px;
+        padding-top: 14px;
+        padding-bottom: 22px;
+    }
+
+    #game-timer {
+        font-size: 30px;
+    }
+
+    section.timer {
+        padding: 15px 14px;
+        gap: 7px;
+    }
+
+    section.numpad {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .number-grid {
+        gap: 7px;
+    }
+
+    .number-grid button {
+        font-size: 18px;
+    }
+
+    .utility-buttons button {
+        min-height: 44px;
+    }
+}
+
+/* =====================================
+   TABLET AND MOBILE LAYOUT
+   ===================================== */
+
+@media (max-width: 800px) {
+
+    .game-info {
+        padding: 24px 16px 12px;
+    }
+
+    main {
+        grid-template-columns: minmax(0, 540px);
+        grid-template-rows: auto auto auto;
+
+        grid-template-areas:
+            "board"
+            "timer"
+            "numpad";
+
+        justify-items: center;
+
+        gap: 18px;
+
+        padding: 20px 16px 35px;
+    }
+
+    section.board {
+        width: min(100%, 540px);
+    }
+
+    section.timer,
+    section.numpad {
+        width: min(100%, 540px);
+    }
+
+    /* Timer becomes a compact horizontal card */
+
+    section.timer {
+        display: grid;
+
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+
+        align-items: center;
+        gap: 8px;
+        padding: 14px;
+    }
+
+    .timer::before,
+    #game-timer {
+        grid-column: 1 / -1;
+        text-align: center;
+    }
+
+    #game-timer {
+        font-size: 30px;
+    }
+
+    .timer button {
+        min-width: 0;
+        padding: 9px 5px;
+    }
+
+    /* Number pad remains vertically arranged */
+
+    section.numpad {
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+    }
+
+    .number-grid {
+        width: 100%;
+    }
+
+    .utility-buttons {
+        width: 100%;
+    }
+}
+
+/* =====================================
+   SMALL MOBILE SCREENS
+   ===================================== */
+
+@media (max-width: 420px) {
+
+    .game-info h1 {
+        font-size: 25px;
+    }
+
+    main {
+        padding-right: 10px;
+        padding-left: 10px;
+        gap: 14px;
+    }
+
+    .board input {
+        font-size: clamp(12px, 4vw, 17px);
+    }
+
+    section.timer {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    section.numpad {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .number-grid {
+        gap: 7px;
+    }
+
+    .number-grid button {
+        min-height: 38px;
+        font-size: 15px;
+    }
+
+    .utility-buttons button {
+        min-height: 44px;
+        font-size: 9px;
+    }
+}
+
+/* =====================================
+   REDUCED MOTION ACCESSIBILITY
+   ===================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* =====================================
+   ZEN SUDOKU — TIMER REDESIGN
+   ===================================== */
+
+section.timer {
+    grid-area: timer;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+
+    width: 100%;
+    padding: 19px 17px;
+    gap: 12px;
+
+    background:
+        linear-gradient(145deg, #FFFFFF, #F1F4EB);
+
+    border: 1px solid #DCE3D4;
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 28px rgba(53, 65, 47, 0.08),
+        inset 0 1px 0 #FFFFFF;
+
+    align-self: end;
+}
+
+/* Timer heading */
+
+.timer::before {
+    content: "✧  YOUR FOCUS TIME  ✧";
+
+    color: #7D8D6C;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+/* Digital clock */
+
+#game-timer {
+    color: #35412F;
+
+    font-family: Georgia, serif;
+    font-size: 42px;
+    font-weight: 600;
+    letter-spacing: 2px;
+
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+
+    margin: 0;
+}
+
+/* Timer button arrangement */
+
+.timer-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    width: 100%;
+    gap: 7px;
+}
+
+/* All timer buttons */
+
+.timer-buttons button {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+
+    padding: 8px 4px;
+
+    border: 1px solid #DCE3D4;
+    border-radius: 10px;
+
+    background: #EEF1E8;
+    color: #35412F;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+/* Start button */
+
+.timer-buttons #start-btn {
+    background: #59694B;
+    color: white;
+    border-color: #59694B;
+}
+
+/* Hover effects */
+
+.timer-buttons button:hover {
+    background: #E2E8D9;
+    border-color: #7D8D6C;
+    transform: translateY(-2px);
+}
+
+.timer-buttons #start-btn:hover {
+    background: #35412F;
+}
+
+/* =====================================
+   DESKTOP — FIT EVERYTHING ON ONE SCREEN
+   ===================================== */
+
+@media (min-width: 801px) and (min-height: 650px) {
+
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    body {
+        height: 100vh;
+        min-height: 0;
+    }
+
+    /* Compact title section */
+
+    .game-info {
+        padding: 16px 20px 4px;
+    }
+
+    .game-info h1 {
+        font-size: clamp(28px, 3vw, 38px);
+    }
+
+    .game-info::after {
+        margin-top: 10px;
+    }
+
+    /* Main game grid */
+
+    main {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, min(540px, calc(100vh - 260px)))
+            minmax(235px, 245px);
+
+        grid-template-rows: auto auto;
+
+        grid-template-areas:
+            "board timer"
+            "board numpad";
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 14px 28px;
+
+        height: calc(100vh - 125px);
+
+        padding: 10px 24px 18px;
+        margin: 0 auto;
+    }
+
+    /* Keep board proportional */
+
+    section.board {
+        width: 100%;
+        max-width: 540px;
+        aspect-ratio: 1 / 1;
+    }
+
+    /* Refined timer */
+
+    section.timer {
+        padding: 15px 14px;
+        gap: 9px;
+    }
+
+    #game-timer {
+        font-size: 36px;
+    }
+
+    .timer-buttons button {
+        min-height: 36px;
+    }
+
+    /* Compact number pad */
+
+    section.numpad {
+        padding: 15px;
+        gap: 11px;
+    }
+
+    .number-grid {
+        gap: 7px;
+    }
+
+    .number-grid button {
+        aspect-ratio: 1 / 0.85;
+        font-size: 19px;
+    }
+
+    .utility-buttons button {
+        min-height: 43px;
+    }
+}
+
+/* =========================================
+   ZEN SUDOKU — BOTANICAL IVORY REDESIGN
+   ========================================= */
+
+/* Background texture */
+
+body {
+    background:
+        radial-gradient(
+            circle at 12% 15%,
+            rgba(178, 192, 159, 0.18),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 88% 82%,
+            rgba(226, 232, 217, 0.55),
+            transparent 35%
+        ),
+        linear-gradient(135deg, #F8F7F1, #F1F0E8);
+
+    color: #35412F;
+    position: relative;
+}
+
+/* Subtle paper-like texture */
+
+body::after {
+    content: "" !important;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.16;
+
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(89, 105, 75, 0.035) 0px,
+            rgba(89, 105, 75, 0.035) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    animation: none !important;
+}
+
+/* =========================================
+   HEADER
+   ========================================= */
+
+.game-info {
+    padding: 18px 20px 12px;
+    text-align: center;
+}
+
+.game-info .title-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.game-info .eyebrow {
+    color: #7D8D6C;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 0 0 4px;
+}
+
+.game-info h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(30px, 4vw, 43px);
+    font-weight: 400;
+    letter-spacing: 5px;
+    color: #35412F;
+    margin: 0;
+}
+
+.game-info .tagline {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13px;
+    font-style: italic;
+    letter-spacing: 0.4px;
+    color: #858B7B;
+    margin: 3px 0 0;
+}
+
+/* =========================================
+   TIMER CARD
+   ========================================= */
+
+section.timer {
+    grid-area: timer;
+    align-self: end;
+
+    padding: 22px 20px;
+    border: 1px solid #DCE3D4;
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.96),
+            rgba(238, 241, 232, 0.92)
+        );
+
+    box-shadow: 0 12px 28px rgba(53, 65, 47, 0.08);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative timer heading */
+
+section.timer::before {
+    content: "✧ YOUR FOCUS TIME ✧";
+    display: block;
+    color: #7D8D6C;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    margin-bottom: 12px;
+}
+
+#game-timer {
+    display: block;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 42px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: #35412F;
+    margin: 4px 0 18px;
+    font-variant-numeric: tabular-nums;
+}
+
+.timer-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.timer-buttons button {
+    min-width: 0;
+    padding: 10px 5px;
+    border-radius: 9px;
+    border: 1px solid #DCE3D4;
+    background: #FFFFFF;
+    color: #59694B;
+
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.timer-buttons #start-btn {
+    background: #59694B;
+    border-color: #59694B;
+    color: #FFFFFF;
+}
+
+.timer-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(53, 65, 47, 0.12);
+}
+
+/* =========================================
+   NUMPAD REFINEMENT
+   ========================================= */
+
+.numpad {
+    border: 1px solid #DCE3D4;
+    box-shadow: 0 12px 28px rgba(53, 65, 47, 0.07);
+}
+
+.numpad-heading h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    color: #35412F;
+}
+
+.numpad-heading p,
+.numpad-footer {
+    color: #858B7B;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+}
+
+/* =========================================
+   DESKTOP — NO PAGE SCROLL
+   ========================================= */
+
+@media (min-width: 801px) and (min-height: 650px) {
+
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-info {
+        flex-shrink: 0;
+        padding: 14px 20px 10px;
+    }
+
+    main {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 10px 24px 24px;
+        box-sizing: border-box;
+
+        display: grid;
+        grid-template-columns:
+            minmax(0, 540px)
+            minmax(235px, 245px);
+
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "board timer"
+            "board numpad";
+
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+        gap: 18px 30px;
+    }
+
+    .board {
+        grid-area: board;
+        width: min(100%, 540px);
+        max-height: calc(100vh - 210px);
+        aspect-ratio: 1;
+        justify-self: center;
+    }
+
+    section.timer {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .numpad {
+        grid-area: numpad;
+        width: 100%;
+        box-sizing: border-box;
+        align-self: start;
+    }
+}
+
+/* =========================================
+   SHORT DESKTOP WINDOWS
+   Keep scrolling if space is insufficient.
+   ========================================= */
+
+@media (min-width: 801px) and (max-height: 649px) {
+    html,
+    body {
+        height: auto;
+        overflow-y: auto;
+    }
+
+    main {
+        align-content: start;
+    }
+}
+
+/* =========================================
+   MOBILE AND TABLET
+   ========================================= */
+
+@media (max-width: 800px) {
+
+    html,
+    body {
+        height: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .game-info {
+        padding: 22px 12px 16px;
+    }
+
+    .game-info h1 {
+        font-size: 32px;
+        letter-spacing: 4px;
+    }
+
+    .game-info .eyebrow {
+        font-size: 9px;
+        letter-spacing: 2px;
+    }
+
+    .game-info .tagline {
+        font-size: 12px;
+    }
+
+    section.timer {
+        padding: 18px 16px;
+    }
+
+    #game-timer {
+        font-size: 36px;
+    }
+
+    .timer-buttons {
+        gap: 7px;
+    }
+
+    .timer-buttons button {
+        padding: 10px 4px;
+    }
+}
+
+
+/* =========================================
+   ZEN SUDOKU — BOTANICAL EDITORIAL BACKGROUND
+   Ivory + Sage + Watercolor + Paper Texture
+   ========================================= */
+
+/* Main layered background */
+
+body {
+    position: relative;
+    isolation: isolate;
+
+    background-color: #F7F5EF;
+
+    background-image:
+        radial-gradient(
+            ellipse at 5% 8%,
+            rgba(178, 192, 159, 0.34),
+            transparent 30%
+        ),
+        radial-gradient(
+            ellipse at 96% 12%,
+            rgba(221, 211, 185, 0.30),
+            transparent 27%
+        ),
+        radial-gradient(
+            ellipse at 88% 92%,
+            rgba(178, 192, 159, 0.32),
+            transparent 32%
+        ),
+        radial-gradient(
+            ellipse at 12% 88%,
+            rgba(232, 222, 202, 0.42),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #FAF9F4 0%,
+            #F3F1E8 48%,
+            #F8F6EF 100%
+        );
+
+    background-attachment: fixed;
+}
+
+/* Fine handmade-paper texture */
+
+body::before {
+    content: "" !important;
+
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    opacity: 0.20;
+
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(89, 105, 75, 0.045) 0px,
+            rgba(89, 105, 75, 0.045) 1px,
+            transparent 1px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(120, 105, 78, 0.025) 0px,
+            rgba(120, 105, 78, 0.025) 1px,
+            transparent 1px,
+            transparent 5px
+        );
+
+    animation: none !important;
+}
+
+/* Botanical illustrations and soft organic accents */
+
+body::after {
+    content: "" !important;
+
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    opacity: 0.58;
+
+    background-image:
+
+        /* Top-left botanical branch */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 280' fill='none' stroke='%237D8D6C' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M12 265 Q65 205 93 140 T190 15'/%3E%3Cpath d='M49 225 Q15 220 17 187 Q52 190 49 225Z'/%3E%3Cpath d='M68 196 Q34 168 56 143 Q84 162 68 196Z'/%3E%3Cpath d='M91 151 Q56 139 69 108 Q102 119 91 151Z'/%3E%3Cpath d='M117 112 Q85 83 110 57 Q139 82 117 112Z'/%3E%3Cpath d='M91 151 Q126 157 141 126 Q108 116 91 151Z'/%3E%3Cpath d='M123 103 Q155 112 175 83 Q144 66 123 103Z'/%3E%3Cpath d='M151 65 Q178 75 195 49 Q169 33 151 65Z'/%3E%3C/svg%3E"),
+
+        /* Bottom-right botanical branch */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 280' fill='none' stroke='%237D8D6C' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M12 265 Q65 205 93 140 T190 15'/%3E%3Cpath d='M49 225 Q15 220 17 187 Q52 190 49 225Z'/%3E%3Cpath d='M68 196 Q34 168 56 143 Q84 162 68 196Z'/%3E%3Cpath d='M91 151 Q56 139 69 108 Q102 119 91 151Z'/%3E%3Cpath d='M117 112 Q85 83 110 57 Q139 82 117 112Z'/%3E%3Cpath d='M91 151 Q126 157 141 126 Q108 116 91 151Z'/%3E%3Cpath d='M123 103 Q155 112 175 83 Q144 66 123 103Z'/%3E%3Cpath d='M151 65 Q178 75 195 49 Q169 33 151 65Z'/%3E%3C/svg%3E"),
+
+        /* Delicate decorative circular motif */
+        radial-gradient(
+            circle,
+            transparent 58%,
+            rgba(125, 141, 108, 0.13) 59%,
+            transparent 60%
+        );
+
+    background-repeat:
+        no-repeat,
+        no-repeat,
+        no-repeat;
+
+    background-position:
+        left -28px top 75px,
+        right -35px bottom -65px,
+        right 12% top 18%;
+
+    background-size:
+        210px 270px,
+        230px 290px,
+        190px 190px;
+
+    animation: none !important;
+}
+
+/* Smaller decorative treatment on mobile */
+
+@media (max-width: 800px) {
+
+    body::after {
+        opacity: 0.32;
+
+        background-position:
+            left -65px top 80px,
+            right -75px bottom 20px,
+            right 5% top 25%;
+
+        background-size:
+            155px 200px,
+            165px 210px,
+            120px 120px;
+    }
+
+    body::before {
+        opacity: 0.13;
+    }
+}
+
+/* Respect reduced-motion preferences */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body::before,
+    body::after {
+        animation: none !important;
+    }
+}
+
+body {
+    background-image: url("./assets/board background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    /* Soft, subtle background appearance */
+    background-color: #F7F5EF;
+}
+
+/* Keep the background image behind the game */
+body {
+    position: relative;
+    isolation: isolate;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(247, 245, 239, 0.15);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Keep all game elements above the soft overlay */
+body > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* =========================================
+   INVALID MOVE — FULL CONFLICT HIGHLIGHT
+   ========================================= */
+
+.board input.error,
+.board input.fixed.error,
+.board input.given.error {
+    background: #F4C9C4 !important;
+    color: #963F36 !important;
+
+    box-shadow: inset 0 0 0 1px #D98B82;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+/* Selected cell inside a conflicting group */
+
+.board input.error.selected {
+    background: #E8A9A2 !important;
+    color: #792F29 !important;
+
+    outline: 2px solid #A44F45;
+    outline-offset: -2px;
+}
+
+/* =========================================
+   ZEN SUDOKU — PUZZLE COMPLETED CARD
+   Botanical Achievement Experience
+   ========================================= */
+
+/* Background overlay */
+
+.solved-overlay[hidden] {
+    display: none !important;
+}
+
+.solved-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(45, 57, 39, 0.42);
+
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+
+    animation: solvedOverlayIn 0.35s ease both;
+}
+
+/* Main completion card */
+
+.solved-card {
+    position: relative;
+
+    width: min(100%, 440px);
+    padding: 38px 34px 27px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            #FFFDF8 0%,
+            #F7F5EF 100%
+        );
+
+    border: 1px solid rgba(125, 141, 108, 0.28);
+    border-radius: 25px;
+
+    box-shadow:
+        0 25px 75px rgba(31, 43, 27, 0.24),
+        inset 0 1px 0 #FFFFFF;
+
+    text-align: center;
+
+    animation: solvedCardIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Decorative top line */
+
+.solved-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 12%;
+
+    width: 76%;
+    height: 3px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #B2C09F,
+        #59694B,
+        #B2C09F,
+        transparent
+    );
+}
+
+/* Soft decorative circles */
+
+.solved-card::after {
+    content: "";
+
+    position: absolute;
+    top: -85px;
+    right: -75px;
+
+    width: 190px;
+    height: 190px;
+
+    border: 1px solid rgba(125, 141, 108, 0.13);
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 18px rgba(125, 141, 108, 0.035),
+        0 0 0 38px rgba(125, 141, 108, 0.025);
+
+    pointer-events: none;
+}
+
+/* Achievement symbol */
+
+.solved-icon {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 76px;
+    height: 76px;
+
+    margin: 0 auto 22px;
+
+    border: 1px solid #DCE3D4;
+    border-radius: 50%;
+
+    background: linear-gradient(
+        145deg,
+        #F1F4EA,
+        #E2E8D9
+    );
+
+    color: #59694B;
+
+    font-size: 36px;
+
+    box-shadow:
+        0 5px 16px rgba(89, 105, 75, 0.10),
+        inset 0 1px 0 #FFFFFF;
+}
+
+/* Small decorative eyebrow */
+
+.solved-eyebrow {
+    position: relative;
+    z-index: 1;
+
+    margin: 0 0 11px;
+
+    color: #7D8D6C;
+
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2.8px;
+
+    text-transform: uppercase;
+}
+
+/* Main heading */
+
+.solved-card h2 {
+    position: relative;
+    z-index: 1;
+
+    margin: 0;
+
+    color: #35412F;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+/* Completion message */
+
+.solved-message {
+    position: relative;
+    z-index: 1;
+
+    max-width: 315px;
+
+    margin: 13px auto 25px;
+
+    color: #858B7B;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* Achievement statistics */
+
+.solved-stats {
+    position: relative;
+    z-index: 1;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-bottom: 22px;
+}
+
+.solved-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    min-height: 105px;
+    padding: 15px 8px;
+
+    background: rgba(238, 241, 232, 0.85);
+
+    border: 1px solid #E2E8D9;
+    border-radius: 15px;
+
+    transition:
+        transform 0.25s ease,
+        background-color 0.25s ease;
+}
+
+.solved-stat:hover {
+    transform: translateY(-3px);
+    background: #E8EDDF;
+}
+
+/* Stat symbols */
+
+.stat-icon {
+    color: #7D8D6C;
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* Stat values */
+
+.solved-stat strong {
+    color: #35412F;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 25px;
+    font-weight: 600;
+
+    font-variant-numeric: tabular-nums;
+}
+
+/* Stat labels */
+
+.solved-stat small {
+    color: #858B7B;
+
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+
+    text-transform: uppercase;
+}
+
+/* Zen quote */
+
+.solved-quote {
+    position: relative;
+    z-index: 1;
+
+    margin: 0 0 23px;
+    padding: 15px 13px;
+
+    border-left: 2px solid #B2C09F;
+    border-radius: 0 10px 10px 0;
+
+    background: rgba(240, 238, 229, 0.65);
+
+    color: #59694B;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13px;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* Shared button styling */
+
+.play-again-btn,
+.home-btn {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 47px;
+
+    border-radius: 11px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.4px;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    transition:
+        transform 0.22s ease,
+        background-color 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+/* Primary action */
+
+.play-again-btn {
+    border: 1px solid #59694B;
+
+    background: #59694B;
+    color: #FFFFFF;
+
+    box-shadow:
+        0 5px 13px rgba(89, 105, 75, 0.18);
+}
+
+.play-again-btn:hover {
+    transform: translateY(-2px);
+
+    background: #35412F;
+    border-color: #35412F;
+
+    box-shadow:
+        0 8px 18px rgba(53, 65, 47, 0.20);
+}
+
+.play-again-btn:active {
+    transform: scale(0.98);
+}
+
+/* Secondary action */
+
+.home-btn {
+    margin-top: 10px;
+
+    border: 1px solid #DCE3D4;
+
+    background: rgba(255, 255, 255, 0.65);
+    color: #59694B;
+}
+
+.home-btn:hover {
+    transform: translateY(-1px);
+
+    background: #EEF1E8;
+    border-color: #B2C09F;
+}
+
+/* Footer */
+
+.solved-footer {
+    position: relative;
+    z-index: 1;
+
+    margin: 23px 0 0;
+
+    color: #A0A795;
+
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 2.2px;
+
+    text-transform: uppercase;
+}
+
+/* Entrance animations */
+
+@keyframes solvedOverlayIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes solvedCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(22px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Tablet and mobile */
+
+@media (max-width: 480px) {
+
+    .solved-overlay {
+        padding: 14px;
+    }
+
+    .solved-card {
+        padding: 32px 21px 23px;
+        border-radius: 21px;
+    }
+
+    .solved-icon {
+        width: 66px;
+        height: 66px;
+        font-size: 31px;
+        margin-bottom: 19px;
+    }
+
+    .solved-card h2 {
+        font-size: 26px;
+    }
+
+    .solved-message {
+        font-size: 13px;
+        margin-bottom: 21px;
+    }
+
+    .solved-stats {
+        gap: 9px;
+    }
+
+    .solved-stat {
+        min-height: 95px;
+    }
+
+    .solved-stat strong {
+        font-size: 22px;
+    }
+
+    .solved-quote {
+        font-size: 12px;
+    }
+}
